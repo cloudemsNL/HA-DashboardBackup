@@ -1,0 +1,31 @@
+backup_now:
+  name: Backup dashboards now
+  description: Immediately create a backup of one or all Lovelace dashboards.
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The dashboard ID to back up. Use "all" to back up every dashboard. Default is "all".
+      required: false
+      default: "all"
+      example: "my-dashboard"
+      selector:
+        text:
+
+restore:
+  name: Restore dashboard
+  description: Restore a Lovelace dashboard from a specific backup file.
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard to restore.
+      required: true
+      example: "lovelace"
+      selector:
+        text:
+    filename:
+      name: Backup filename
+      description: The backup filename to restore from (e.g. 20240101_120000.json).
+      required: true
+      example: "20240101_120000.json"
+      selector:
+        text:

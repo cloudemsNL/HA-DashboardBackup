@@ -1,0 +1,13 @@
+{
+  "domain": "dashboard_backup",
+  "name": "Dashboard Backup",
+  "version": "1.1.0",
+  "documentation": "https://github.com/smarthost9m/ha-dashboard-backup",
+  "issue_tracker": "https://github.com/smarthost9m/ha-dashboard-backup/issues",
+  "dependencies": ["frontend", "http", "panel_custom"],
+  "codeowners": ["@smarthost9m"],
+  "requirements": [],
+  "iot_class": "local_push",
+  "homeassistant": "2024.4.0",
+  "config_flow": true
+}

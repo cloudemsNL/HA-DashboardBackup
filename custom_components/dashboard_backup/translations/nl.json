@@ -1,0 +1,33 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Dashboard Backup instellen",
+        "description": "Configureer automatische back-ups voor al je Lovelace dashboards.",
+        "data": {
+          "max_backups": "Maximaal aantal back-ups per dashboard",
+          "interval_hours": "Back-up interval (uren)",
+          "backup_on_change": "Automatisch back-uppen bij dashboardwijziging"
+        }
+      }
+    },
+    "error": {
+      "unknown": "Onverwachte fout"
+    },
+    "abort": {
+      "already_configured": "Dashboard Backup is al geconfigureerd"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Dashboard Backup opties",
+        "data": {
+          "max_backups": "Maximaal aantal back-ups per dashboard",
+          "interval_hours": "Back-up interval (uren)",
+          "backup_on_change": "Automatisch back-uppen bij dashboardwijziging"
+        }
+      }
+    }
+  }
+}

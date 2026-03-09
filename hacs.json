@@ -1,0 +1,8 @@
+{
+  "name": "Dashboard Backup",
+  "description": "Automatically backup and restore all your Lovelace dashboards with a beautiful management panel.",
+  "render_readme": true,
+  "content_in_root": false,
+  "homeassistant": "2024.4.0",
+  "filename": "dashboard-backup-panel.js"
+}
