@@ -47,14 +47,11 @@ class DashboardBackupConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return DashboardBackupOptionsFlow(config_entry)
+        return DashboardBackupOptionsFlow()
 
 
 class DashboardBackupOptionsFlow(config_entries.OptionsFlow):
     """Handle options flow."""
-
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         """Manage options."""
