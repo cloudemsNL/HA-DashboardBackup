@@ -415,6 +415,78 @@ const STYLES = `
     word-break: break-word;
   }  
 
+  /* ── Coffee banner ───────────────────────────────────────────── */
+  .coffee-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    margin-top: 32px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .coffee-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.04), transparent);
+  }
+
+  .coffee-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,.28);
+  }
+
+  .coffee-banner:active { transform: translateY(0); }
+
+  .coffee-emoji {
+    font-size: 2rem;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0);    }
+    50%       { transform: translateY(-4px); }
+  }
+
+  .coffee-text { flex: 1; }
+
+  .coffee-text strong {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .coffee-text span {
+    font-size: 0.78rem;
+    opacity: 0.65;
+  }
+
+  .coffee-btn {
+    background: #FFDD00;
+    color: #1a1a1a;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: filter 0.15s;
+  }
+
+  .coffee-banner:hover .coffee-btn { filter: brightness(1.08); }
+  
   /* ── Spinner ──────────────────────────────────────────────────── */
   .spinner {
     width: 18px;
@@ -806,7 +878,15 @@ class DashboardBackupPanel extends HTMLElement {
                </div>`
             : dashboardIds.map(id => this._renderDashboardCard(id, this._backups[id] || [])).join("")
         }
-
+        
+        <a class="coffee-banner" href="https://buymeacoffee.com/smarthost9m" target="_blank" rel="noopener">
+          <div class="coffee-emoji">☕</div>
+          <div class="coffee-text">
+            <strong>Finding Dashboard Backup useful?</strong>
+            <span>Help the developer with a coffee — greatly appreciated!</span>
+          </div>
+          <div class="coffee-btn">Buy me a coffee ☕</div>
+        </a>
       </div>
 
       ${this._renderConfirmModal()}
