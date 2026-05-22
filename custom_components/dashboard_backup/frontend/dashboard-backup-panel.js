@@ -413,79 +413,7 @@ const STYLES = `
     color: #cdd6f4;
     white-space: pre-wrap;
     word-break: break-word;
-  }
-
-  /* ── Coffee banner ───────────────────────────────────────────── */
-  .coffee-banner {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 20px;
-    margin-top: 32px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    color: #fff;
-    text-decoration: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .coffee-banner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,.04), transparent);
-  }
-
-  .coffee-banner:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(0,0,0,.28);
-  }
-
-  .coffee-banner:active { transform: translateY(0); }
-
-  .coffee-emoji {
-    font-size: 2rem;
-    flex-shrink: 0;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.3));
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0);    }
-    50%       { transform: translateY(-4px); }
-  }
-
-  .coffee-text { flex: 1; }
-
-  .coffee-text strong {
-    display: block;
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .coffee-text span {
-    font-size: 0.78rem;
-    opacity: 0.65;
-  }
-
-  .coffee-btn {
-    background: #FFDD00;
-    color: #1a1a1a;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: filter 0.15s;
-  }
-
-  .coffee-banner:hover .coffee-btn { filter: brightness(1.08); }
+  }  
 
   /* ── Spinner ──────────────────────────────────────────────────── */
   .spinner {
@@ -518,8 +446,12 @@ function parseTimestamp(ts) {
   // Format: YYYYMMDD_HHMMSS
   const [date, time] = ts.split("_");
   if (!date || !time) return { date: ts, time: "" };
-  const y = date.slice(0, 4), mo = date.slice(4, 6), d = date.slice(6, 8);
-  const h = time.slice(0, 2), mi = time.slice(2, 4), s = time.slice(4, 6);
+  const y = date.slice(0, 4),
+    mo = date.slice(4, 6),
+    d = date.slice(6, 8);
+  const h = time.slice(0, 2),
+    mi = time.slice(2, 4),
+    s = time.slice(4, 6);
   const dt = new Date(`${y}-${mo}-${d}T${h}:${mi}:${s}`);
   return {
     date: dt.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }),
@@ -534,11 +466,11 @@ class DashboardBackupPanel extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._hass = null;
     this._loading = true;
-    this._backups = {};       // { dashboardId: [{filename, timestamp, size_kb}] }
-    this._open = {};          // { dashboardId: bool }
-    this._busy = {};          // { dashboardId: bool }
-    this._confirmRestore = null;   // { dashboardId, filename }
-    this._previewData = null;      // { dashboardId, filename, content }
+    this._backups = {}; // { dashboardId: [{filename, timestamp, size_kb}] }
+    this._open = {}; // { dashboardId: bool }
+    this._busy = {}; // { dashboardId: bool }
+    this._confirmRestore = null; // { dashboardId, filename }
+    this._previewData = null; // { dashboardId, filename, content }
     this._initialized = false;
     this._toastTimer = null;
   }
@@ -578,7 +510,7 @@ class DashboardBackupPanel extends HTMLElement {
         this._open[ids[0]] = true;
       }
     } catch (e) {
-      this._toast("Fout bij laden van back-ups", "error");
+      this._toast("Error loading backups", "error");
     } finally {
       this._loading = false;
       this._update();
@@ -593,13 +525,13 @@ class DashboardBackupPanel extends HTMLElement {
         dashboard_id: dashboardId,
       });
       if (res.success) {
-        this._toast("Back-up aangemaakt ✓", "success");
+        this._toast("Backup created ✓", "success");
         await this._loadBackups();
       } else {
-        this._toast("Back-up mislukt: " + (res.error || "onbekend"), "error");
+        this._toast("Backup failed: " + (res.error || "unknown"), "error");
       }
     } catch (e) {
-      this._toast("Verbindingsfout", "error");
+      this._toast("Connection error", "error");
     } finally {
       delete this._busy[dashboardId];
       this._update();
@@ -614,13 +546,13 @@ class DashboardBackupPanel extends HTMLElement {
         dashboard_id: "all",
       });
       if (res.success) {
-        this._toast("Alle dashboards gebackupt ✓", "success");
+        this._toast("All dashboards backed up ✓", "success");
         await this._loadBackups();
       } else {
-        this._toast("Back-up mislukt: " + (res.error || "onbekend"), "error");
+        this._toast("Backup failed: " + (res.error || "unknown"), "error");
       }
     } catch (e) {
-      this._toast("Verbindingsfout", "error");
+      this._toast("Connection error", "error");
     } finally {
       delete this._busy["__all__"];
       this._update();
@@ -637,12 +569,12 @@ class DashboardBackupPanel extends HTMLElement {
         filename,
       });
       if (res.success) {
-        this._toast("Dashboard hersteld ✓", "success");
+        this._toast("Dashboard restored ✓", "success");
       } else {
-        this._toast("Herstel mislukt: " + (res.error || "onbekend"), "error");
+        this._toast("Restore failed: " + (res.error || "unknown"), "error");
       }
     } catch (e) {
-      this._toast("Verbindingsfout", "error");
+      this._toast("Connection error", "error");
     } finally {
       delete this._busy[dashboardId + filename];
       this._update();
@@ -656,13 +588,13 @@ class DashboardBackupPanel extends HTMLElement {
         filename,
       });
       if (res.success) {
-        this._toast("Back-up verwijderd", "success");
+        this._toast("Backup deleted", "success");
         await this._loadBackups();
       } else {
-        this._toast("Verwijderen mislukt", "error");
+        this._toast("Delete failed", "error");
       }
     } catch (e) {
-      this._toast("Verbindingsfout", "error");
+      this._toast("Connection error", "error");
     }
   }
 
@@ -717,22 +649,22 @@ class DashboardBackupPanel extends HTMLElement {
       <div class="backup-row">
         <div class="backup-time">
           <div class="date">${date}
-            ${isLatest ? '<span class="latest-badge">Laatste</span>' : ""}
+            ${isLatest ? '<span class="latest-badge">Latest</span>' : ""}
           </div>
           <div class="time">${time}</div>
         </div>
         <div class="backup-size">${backup.size_kb} KB</div>
         <div class="backup-actions">
-          <button class="btn-ghost btn-icon" title="Bekijk inhoud"
+          <button class="btn-ghost btn-icon" title="Preview contents"
             data-action="preview" data-did="${dashboardId}" data-file="${backup.filename}">
             ${icon.eye}
           </button>
-          <button class="btn-warning btn-icon" title="Herstel dit dashboard"
+          <button class="btn-warning btn-icon" title="Restore this dashboard"
             ${isBusy ? "disabled" : ""}
             data-action="restore" data-did="${dashboardId}" data-file="${backup.filename}">
             ${isBusy ? '<span class="spinner"></span>' : icon.restore}
           </button>
-          <button class="btn-danger btn-icon" title="Verwijder back-up"
+          <button class="btn-danger btn-icon" title="Delete backup"
             data-action="delete" data-did="${dashboardId}" data-file="${backup.filename}">
             ${icon.trash}
           </button>
@@ -750,23 +682,23 @@ class DashboardBackupPanel extends HTMLElement {
         <div class="dashboard-header" data-action="toggle" data-did="${dashboardId}">
           <div class="dash-icon">${icon.dashboard}</div>
           <div class="dash-name">${dashboardId}</div>
-          <div class="dash-count">${backups.length} back-up${backups.length !== 1 ? "s" : ""}</div>
+          <div class="dash-count">${backups.length} backup${backups.length !== 1 ? "s" : ""}</div>
           <svg class="chevron ${isOpen ? "open" : ""}" viewBox="0 0 24 24">
             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
           </svg>
         </div>
         <div class="backup-list ${isOpen ? "open" : ""}">
           <div class="backup-list-header">
-            <span style="font-size:.8rem;opacity:.6;">${backups.length} back-up${backups.length !== 1 ? "s" : ""} opgeslagen</span>
+            <span style="font-size:.8rem;opacity:.6;">${backups.length} backup${backups.length !== 1 ? "s" : ""} saved</span>
             <button class="btn-primary" ${isBusy ? "disabled" : ""}
               data-action="backup" data-did="${dashboardId}">
               ${isBusy ? '<span class="spinner"></span>' : icon.backup}
-              ${isBusy ? "Bezig…" : "Nu back-uppen"}
+              ${isBusy ? "Working..." : "Backup now"}
             </button>
           </div>
           ${
             backups.length === 0
-              ? `<div class="empty-state"><p>Nog geen back-ups voor dit dashboard.</p></div>`
+              ? `<div class="empty-state"><p>No backups yet for this dashboard.</p></div>`
               : backups.map((b, i) => this._renderBackupRow(dashboardId, b, i, backups.length)).join("")
           }
         </div>
@@ -781,17 +713,17 @@ class DashboardBackupPanel extends HTMLElement {
     return `
       <div class="modal-overlay open" id="confirm-modal">
         <div class="modal">
-          <h3>Dashboard herstellen?</h3>
+          <h3>Restore dashboard?</h3>
           <p>
-            Je staat op het punt <strong>${dashboardId}</strong> te herstellen naar de back-up van
-            <strong>${date} om ${time}</strong>.<br><br>
-            De huidige dashboardinhoud wordt overschreven. Wil je doorgaan?
+            You are about to restore <strong>${dashboardId}</strong> to the backup from
+            <strong>${date} at ${time}</strong>.<br><br>
+            The current dashboard content will be overwritten. Do you want to continue?
           </p>
           <div class="modal-actions">
-            <button class="btn-ghost" data-action="cancel-restore">Annuleren</button>
+            <button class="btn-ghost" data-action="cancel-restore">Cancel</button>
             <button class="btn-warning" data-action="confirm-restore"
               data-did="${dashboardId}" data-file="${filename}">
-              ${icon.restore} Ja, herstel
+              ${icon.restore} Yes, restore
             </button>
           </div>
         </div>
@@ -803,25 +735,25 @@ class DashboardBackupPanel extends HTMLElement {
     if (!this._previewData) return "";
     const { dashboardId, filename, content, loading, error } = this._previewData;
     const { date, time } = parseTimestamp(filename.replace(".json", ""));
-    const prettyContent = content
-      ? JSON.stringify(content, null, 2)
-      : loading
-      ? "Laden…"
-      : "Kon inhoud niet laden.";
+    const prettyContent = content ?
+      JSON.stringify(content, null, 2) :
+      loading ?
+      "Loading…" :
+      "Could not load content.";
 
     return `
       <div class="modal-overlay open" id="preview-modal">
         <div class="modal preview-modal">
           <h3>${dashboardId}</h3>
-          <p class="preview-meta">Back-up van ${date} om ${time}</p>
+          <p class="preview-meta">Backup from ${date} at ${time}</p>
           <div class="preview-content">
             <pre>${prettyContent.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>
           </div>
           <div class="modal-actions">
-            <button class="btn-ghost" data-action="close-preview">Sluiten</button>
+            <button class="btn-ghost" data-action="close-preview">Close</button>
             <button class="btn-warning" data-action="restore-from-preview"
               data-did="${dashboardId}" data-file="${filename}">
-              ${icon.restore} Herstel deze versie
+              ${icon.restore} Restore this version
             </button>
           </div>
         </div>
@@ -844,9 +776,9 @@ class DashboardBackupPanel extends HTMLElement {
             <p class="subtitle">
               ${
                 this._loading
-                  ? "Laden…"
+                  ? "Loading…"
                   : `${dashboardIds.length} dashboard${dashboardIds.length !== 1 ? "s" : ""}
-                     · ${totalBackups} back-up${totalBackups !== 1 ? "s" : ""}`
+                     · ${totalBackups} backup${totalBackups !== 1 ? "s" : ""}`
               }
             </p>
           </div>
@@ -855,11 +787,11 @@ class DashboardBackupPanel extends HTMLElement {
         <div class="toolbar">
           <button class="btn-primary" ${allBusy ? "disabled" : ""} data-action="backup-all">
             ${allBusy ? '<span class="spinner"></span>' : icon.backup}
-            ${allBusy ? "Bezig…" : "Alle dashboards back-uppen"}
+            ${allBusy ? "Working..." : "Backup all dashboards"}
           </button>
           <div class="spacer"></div>
           <button class="btn-ghost" data-action="refresh">
-            ${icon.refresh} Vernieuwen
+            ${icon.refresh} Refresh
           </button>
         </div>
 
@@ -869,20 +801,12 @@ class DashboardBackupPanel extends HTMLElement {
             : dashboardIds.length === 0
             ? `<div class="empty-state">
                  ${icon.dashboard}
-                 <p>Geen back-ups gevonden.</p>
-                 <p>Klik op "Alle dashboards back-uppen" om te beginnen.</p>
+                 <p>No backups found.</p>
+                 <p>Click "Backup all dashboards" to get started.</p>
                </div>`
             : dashboardIds.map(id => this._renderDashboardCard(id, this._backups[id] || [])).join("")
         }
 
-        <a class="coffee-banner" href="https://buymeacoffee.com/smarthost9m" target="_blank" rel="noopener">
-          <div class="coffee-emoji">☕</div>
-          <div class="coffee-text">
-            <strong>Vind je Dashboard Backup handig?</strong>
-            <span>Help de ontwikkelaar met een koffietje — wordt enorm gewaardeerd!</span>
-          </div>
-          <div class="coffee-btn">Buy me a coffee ☕</div>
-        </a>
       </div>
 
       ${this._renderConfirmModal()}
