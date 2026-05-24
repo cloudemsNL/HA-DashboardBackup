@@ -686,16 +686,25 @@ class DashboardBackupPanel extends HTMLElement {
   }
 
   // ── Toast ────────────────────────────────────────────────────────
-  _toast(msg, type = "") {
+_toast(msg, type = "") {
+  this._toastMsg = msg;
+  this._toastType = type;
+  this._showToast();
+  clearTimeout(this._toastTimer);
+  this._toastTimer = setTimeout(() => {
+    this._toastMsg = null;
+    this._toastType = null;
     const toast = this.shadowRoot.querySelector(".toast");
-    if (!toast) return;
-    toast.textContent = msg;
-    toast.className = `toast ${type} show`;
-    clearTimeout(this._toastTimer);
-    this._toastTimer = setTimeout(() => {
-      toast.classList.remove("show");
-    }, 3000);
-  }
+    if (toast) toast.classList.remove("show");
+  }, 3000);
+}
+
+_showToast() {
+  const toast = this.shadowRoot.querySelector(".toast");
+  if (!toast || !this._toastMsg) return;
+  toast.textContent = this._toastMsg;
+  toast.className = `toast ${this._toastType || ""} show`;
+}
 
   // ── Render helpers ───────────────────────────────────────────────
   _toggleDashboard(id) {
@@ -895,6 +904,7 @@ class DashboardBackupPanel extends HTMLElement {
     `;
 
     this._attachListeners();
+    this._showToast();
   }
 
   _update() {
