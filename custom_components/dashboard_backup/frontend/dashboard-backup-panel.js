@@ -547,6 +547,7 @@ class DashboardBackupPanel extends HTMLElement {
     this._toastTimer = null;
     this._toastMsg = null;
     this._toastType = null;
+    this._confirmDelete = null; // { dashboardId, filename }
   }
 
   set hass(hass) {
@@ -688,25 +689,25 @@ class DashboardBackupPanel extends HTMLElement {
   }
 
   // ── Toast ────────────────────────────────────────────────────────
-_toast(msg, type = "") {
-  this._toastMsg = msg;
-  this._toastType = type;
-  this._showToast();
-  clearTimeout(this._toastTimer);
-  this._toastTimer = setTimeout(() => {
-    this._toastMsg = null;
-    this._toastType = null;
-    const toast = this.shadowRoot.querySelector(".toast");
-    if (toast) toast.classList.remove("show");
-  }, 3000);
-}
+  _toast(msg, type = "") {
+    this._toastMsg = msg;
+    this._toastType = type;
+    this._showToast();
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => {
+      this._toastMsg = null;
+      this._toastType = null;
+      const toast = this.shadowRoot.querySelector(".toast");
+      if (toast) toast.classList.remove("show");
+    }, 3000);
+  }
 
-_showToast() {
-  const toast = this.shadowRoot.querySelector(".toast");
-  if (!toast || !this._toastMsg) return;
-  toast.textContent = this._toastMsg;
-  toast.className = `toast ${this._toastType || ""} show`;
-}
+  _showToast() {
+    const toast = this.shadowRoot.querySelector(".toast");
+    if (!toast || !this._toastMsg) return;
+    toast.textContent = this._toastMsg;
+    toast.className = `toast ${this._toastType || ""} show`;
+  }
 
   // ── Render helpers ───────────────────────────────────────────────
   _toggleDashboard(id) {
@@ -748,8 +749,8 @@ _showToast() {
             ${isBusy ? '<span class="spinner"></span>' : icon.restore}
           </button>
           <button class="btn-danger btn-icon" title="Delete backup"
-            data-action="delete" data-did="${dashboardId}" data-file="${backup.filename}">
-            ${icon.trash}
+            data-action="request-delete" data-did="${dashboardId}" data-file="${backup.filename}">
+              ${icon.trash}
           </button>
         </div>
       </div>
@@ -813,6 +814,32 @@ _showToast() {
       </div>
     `;
   }
+
+  _renderDeleteModal() {
+    if (!this._confirmDelete) return "";
+    const { dashboardId, filename } = this._confirmDelete;
+    const { date, time } = parseTimestamp(filename.replace(".json", ""));
+    return `
+    <div class="modal-overlay open" id="delete-modal">
+      <div class="modal">
+        <h3>Delete backup?</h3>
+        <p>
+          You are about to delete the backup of <strong>${dashboardId}</strong> from
+          <strong>${date} at ${time}</strong>.<br><br>
+          This cannot be undone. Do you want to continue?
+        </p>
+        <div class="modal-actions">
+          <button class="btn-ghost" data-action="cancel-delete">Cancel</button>
+          <button class="btn-danger" data-action="confirm-delete"
+            data-did="${dashboardId}" data-file="${filename}">
+            ${icon.trash} Yes, delete
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  }
+
 
   _renderPreviewModal() {
     if (!this._previewData) return "";
@@ -901,7 +928,9 @@ _showToast() {
       </div>
 
       ${this._renderConfirmModal()}
+      ${this._renderDeleteModal()}
       ${this._renderPreviewModal()}
+      
       <div class="toast"></div>
     `;
 
@@ -915,60 +944,69 @@ _showToast() {
   }
 
   _attachListeners() {
-  // Remove existing listener before adding new one
-  if (this._clickHandler) {
-    this.shadowRoot.removeEventListener("click", this._clickHandler);
-  }
-  
-  this._clickHandler = async (e) => {
-    const btn = e.target.closest("[data-action]");
-    if (!btn) return;
-    const action = btn.dataset.action;
-    const did = btn.dataset.did;
-    const file = btn.dataset.file;
-
-    switch (action) {
-      case "toggle":
-        this._toggleDashboard(did);
-        break;
-      case "backup-all":
-        await this._backupAll();
-        break;
-      case "backup":
-        await this._backupNow(did);
-        break;
-      case "restore":
-        this._confirmRestore = { dashboardId: did, filename: file };
-        this._update();
-        break;
-      case "delete":
-        await this._deleteBackup(did, file);
-        break;
-      case "preview":
-        await this._previewBackup(did, file);
-        break;
-      case "confirm-restore":
-        await this._doRestore(btn.dataset.did, btn.dataset.file);
-        break;
-      case "cancel-restore":
-        this._confirmRestore = null;
-        this._update();
-        break;
-      case "close-preview":
-        this._previewData = null;
-        this._update();
-        break;
-      case "restore-from-preview":
-        this._previewData = null;
-        this._confirmRestore = { dashboardId: did, filename: file };
-        this._update();
-        break;
-      case "refresh":
-        await this._loadBackups();
-        break;
+    // Remove existing listener before adding new one
+    if (this._clickHandler) {
+      this.shadowRoot.removeEventListener("click", this._clickHandler);
     }
-  };
-  this.shadowRoot.addEventListener("click", this._clickHandler);
+
+    this._clickHandler = async (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const did = btn.dataset.did;
+      const file = btn.dataset.file;
+
+      switch (action) {
+        case "toggle":
+          this._toggleDashboard(did);
+          break;
+        case "backup-all":
+          await this._backupAll();
+          break;
+        case "backup":
+          await this._backupNow(did);
+          break;
+        case "restore":
+          this._confirmRestore = { dashboardId: did, filename: file };
+          this._update();
+          break;
+        case "preview":
+          await this._previewBackup(did, file);
+          break;
+        case "confirm-restore":
+          await this._doRestore(btn.dataset.did, btn.dataset.file);
+          break;
+        case "cancel-restore":
+          this._confirmRestore = null;
+          this._update();
+          break;
+        case "close-preview":
+          this._previewData = null;
+          this._update();
+          break;
+        case "restore-from-preview":
+          this._previewData = null;
+          this._confirmRestore = { dashboardId: did, filename: file };
+          this._update();
+          break;
+        case "refresh":
+          await this._loadBackups();
+          break;
+        case "request-delete":
+          this._confirmDelete = { dashboardId: did, filename: file };
+          this._update();
+          break;
+        case "confirm-delete":
+          this._confirmDelete = null;
+          await this._deleteBackup(btn.dataset.did, btn.dataset.file);
+          break;
+        case "cancel-delete":
+          this._confirmDelete = null;
+          this._update();
+          break;
+      }
+    };
+    this.shadowRoot.addEventListener("click", this._clickHandler);
   }
 }
 
