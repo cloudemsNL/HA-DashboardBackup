@@ -903,54 +903,60 @@ class DashboardBackupPanel extends HTMLElement {
   }
 
   _attachListeners() {
-    this.shadowRoot.addEventListener("click", async (e) => {
-      const btn = e.target.closest("[data-action]");
-      if (!btn) return;
-      const action = btn.dataset.action;
-      const did = btn.dataset.did;
-      const file = btn.dataset.file;
+  // Remove existing listener before adding new one
+  if (this._clickHandler) {
+    this.shadowRoot.removeEventListener("click", this._clickHandler);
+  }
+  
+  this._clickHandler = async (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const did = btn.dataset.did;
+    const file = btn.dataset.file;
 
-      switch (action) {
-        case "toggle":
-          this._toggleDashboard(did);
-          break;
-        case "backup-all":
-          await this._backupAll();
-          break;
-        case "backup":
-          await this._backupNow(did);
-          break;
-        case "restore":
-          this._confirmRestore = { dashboardId: did, filename: file };
-          this._update();
-          break;
-        case "delete":
-          await this._deleteBackup(did, file);
-          break;
-        case "preview":
-          await this._previewBackup(did, file);
-          break;
-        case "confirm-restore":
-          await this._doRestore(btn.dataset.did, btn.dataset.file);
-          break;
-        case "cancel-restore":
-          this._confirmRestore = null;
-          this._update();
-          break;
-        case "close-preview":
-          this._previewData = null;
-          this._update();
-          break;
-        case "restore-from-preview":
-          this._previewData = null;
-          this._confirmRestore = { dashboardId: did, filename: file };
-          this._update();
-          break;
-        case "refresh":
-          await this._loadBackups();
-          break;
-      }
-    });
+    switch (action) {
+      case "toggle":
+        this._toggleDashboard(did);
+        break;
+      case "backup-all":
+        await this._backupAll();
+        break;
+      case "backup":
+        await this._backupNow(did);
+        break;
+      case "restore":
+        this._confirmRestore = { dashboardId: did, filename: file };
+        this._update();
+        break;
+      case "delete":
+        await this._deleteBackup(did, file);
+        break;
+      case "preview":
+        await this._previewBackup(did, file);
+        break;
+      case "confirm-restore":
+        await this._doRestore(btn.dataset.did, btn.dataset.file);
+        break;
+      case "cancel-restore":
+        this._confirmRestore = null;
+        this._update();
+        break;
+      case "close-preview":
+        this._previewData = null;
+        this._update();
+        break;
+      case "restore-from-preview":
+        this._previewData = null;
+        this._confirmRestore = { dashboardId: did, filename: file };
+        this._update();
+        break;
+      case "refresh":
+        await this._loadBackups();
+        break;
+    }
+  };
+  this.shadowRoot.addEventListener("click", this._clickHandler);
   }
 }
 
