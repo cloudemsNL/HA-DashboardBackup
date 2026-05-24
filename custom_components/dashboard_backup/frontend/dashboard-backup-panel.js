@@ -545,6 +545,8 @@ class DashboardBackupPanel extends HTMLElement {
     this._previewData = null; // { dashboardId, filename, content }
     this._initialized = false;
     this._toastTimer = null;
+    this._toastMsg = null;
+    this._toastType = null;
   }
 
   set hass(hass) {
